@@ -1,6 +1,6 @@
 name: BetterTools
 main: me.desertdweller.bettertools.BetterTools
-version: 0.1.8
+version: 0.1.9
 author: Desertdweller
 api-version: 1.13
 depend: [NBTAPI]
@@ -45,6 +45,9 @@ commands:
   bt refreshtool:
     description: Refreshes the lore for the tool you are holding.
     usage: /bt refreshtool
+  bt createtileschem:
+    description: Creates the schematic for a Trials room.
+    usage: /bt createtileschem <name>
 permissions:
    bt.use:
       description: Allows the player to use the tools.

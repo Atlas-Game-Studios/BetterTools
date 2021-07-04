@@ -1,7 +1,11 @@
 package me.desertdweller.bettertools;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,6 +13,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
+import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.world.World;
 
 import de.tr7zw.nbtapi.NBTItem;
 import me.desertdweller.bettertools.math.BlockMath;
@@ -409,6 +420,42 @@ public class Commands implements CommandExecutor{
 				p.sendMessage(ChatColor.RED + "You are not holding a BT tool. Find one or use /bt tool");
 			}
 			return true;
+		}else if(args[0].equalsIgnoreCase("createtileschem")) {
+			if(!(sender instanceof Player)) {
+				sender.sendMessage("You need to be ingame");
+				return true;
+			}
+			int xChunk = 1;
+			int zChunk = 1;
+			Player p = (Player) sender;
+			
+			while(!p.getWorld().getBlockAt(new Location(p.getWorld(), p.getLocation().getX() + 16*xChunk, p.getLocation().getY(), p.getLocation().getZ())).getType().equals(Material.AIR)) {
+				xChunk++;
+			}
+			xChunk -= 1;
+			while(!p.getWorld().getBlockAt(new Location(p.getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ() + 16*zChunk)).getType().equals(Material.AIR)) {
+				zChunk++;
+			}
+			zChunk -= 1;
+			
+			int highestPoint = 0;
+			for(int x = 1; x < xChunk*16; x++) {
+				for(int z = 1; z < zChunk*16; z++) {
+					int highPoint = (int) p.getWorld().getHighestBlockAt(new Location(p.getWorld(), p.getLocation().getX() + x, p.getLocation().getY(), p.getLocation().getZ() + z)).getLocation().getY();
+					if(highPoint > highestPoint)
+						highPoint = highestPoint;
+				}
+			}
+			BlockVector3 vec1 = BlockVector3.at(p.getLocation().getX() + 1, p.getLocation().getY(), p.getLocation().getZ() + 1);
+			BlockVector3 vec2 = BlockVector3.at(p.getLocation().getX() + 1 + xChunk*16, p.getLocation().getY(), p.getLocation().getZ() + 1 + zChunk*16);
+			
+			CuboidRegion region = new CuboidRegion((World) p.getWorld(), vec1, vec2);
+			
+			try {
+				saveArea(args[1], region);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		sendHelp(sender);
 		return true;
@@ -544,6 +591,14 @@ public class Commands implements CommandExecutor{
 		}
 		
 		return lore;
+	}
+	
+	public void saveArea(String schemFile, CuboidRegion region) throws IOException {
+		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+		File file = new File("TilesSchematics//" + schemFile);
+		try (ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file))) {
+		    writer.write(clipboard);
+		}
 	}
 
 }
