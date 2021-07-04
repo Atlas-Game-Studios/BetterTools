@@ -14,9 +14,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
+import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.World;
@@ -429,12 +435,16 @@ public class Commands implements CommandExecutor{
 			int zChunk = 1;
 			Player p = (Player) sender;
 			
-			while(!p.getWorld().getBlockAt(new Location(p.getWorld(), p.getLocation().getX() + 16*xChunk, p.getLocation().getY(), p.getLocation().getZ())).getType().equals(Material.AIR)) {
+			while(!p.getWorld().getBlockAt(new Location(p.getWorld(), p.getLocation().getX() + 16*xChunk, p.getLocation().getY(), p.getLocation().getZ() + 1)).getType().equals(Material.AIR)) {
 				xChunk++;
+				if(xChunk > 20)
+					break;
 			}
 			xChunk -= 1;
-			while(!p.getWorld().getBlockAt(new Location(p.getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ() + 16*zChunk)).getType().equals(Material.AIR)) {
+			while(!p.getWorld().getBlockAt(new Location(p.getWorld(), p.getLocation().getX() + 1, p.getLocation().getY(), p.getLocation().getZ() + 16*zChunk)).getType().equals(Material.AIR)) {
 				zChunk++;
+				if(zChunk > 20)
+					break;
 			}
 			zChunk -= 1;
 			
@@ -443,19 +453,30 @@ public class Commands implements CommandExecutor{
 				for(int z = 1; z < zChunk*16; z++) {
 					int highPoint = (int) p.getWorld().getHighestBlockAt(new Location(p.getWorld(), p.getLocation().getX() + x, p.getLocation().getY(), p.getLocation().getZ() + z)).getLocation().getY();
 					if(highPoint > highestPoint)
-						highPoint = highestPoint;
+						highestPoint = highPoint;
 				}
 			}
-			BlockVector3 vec1 = BlockVector3.at(p.getLocation().getX() + 1, p.getLocation().getY(), p.getLocation().getZ() + 1);
-			BlockVector3 vec2 = BlockVector3.at(p.getLocation().getX() + 1 + xChunk*16, p.getLocation().getY(), p.getLocation().getZ() + 1 + zChunk*16);
+			BlockVector3 vec1 = BlockVector3.at((int) p.getLocation().getX() + 1, (int) p.getLocation().getY(), (int) p.getLocation().getZ() + 1);
+			BlockVector3 vec2 = BlockVector3.at(p.getLocation().getX() + xChunk*16, highestPoint, p.getLocation().getZ() + zChunk*16);
 			
-			CuboidRegion region = new CuboidRegion((World) p.getWorld(), vec1, vec2);
+			sender.sendMessage(vec1.getX() + " " + vec1.getY() + " " + vec1.getZ());
+			sender.sendMessage(vec2.getX() + " " + vec2.getY() + " " + vec2.getZ());
+			
+			CuboidRegion region = new CuboidRegion(BukkitAdapter.adapt(p.getWorld()), vec1, vec2);
+			
+			if(args.length < 2) {
+				sender.sendMessage("/bt createtileschem <name>");
+				return true;
+			}
 			
 			try {
-				saveArea(args[1], region);
+				saveArea(args[1], region, BukkitAdapter.adapt(p.getWorld()));
+				sender.sendMessage(ChatColor.YELLOW + "Schematic that is " + xChunk + "x" + zChunk + " chunks wide, and " + (highestPoint - p.getLocation().getY()) + " blocks tall, called: " + args[1]);
 			} catch (IOException e) {
 				e.printStackTrace();
+				return false;
 			}
+			return true;
 		}
 		sendHelp(sender);
 		return true;
@@ -593,9 +614,26 @@ public class Commands implements CommandExecutor{
 		return lore;
 	}
 	
-	public void saveArea(String schemFile, CuboidRegion region) throws IOException {
+	public void saveArea(String schemName, CuboidRegion region, World world) throws IOException {
 		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-		File file = new File("TilesSchematics//" + schemFile);
+		
+		try (EditSession editSession = WorldEdit.getInstance().newEditSession(world)) {
+		    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
+		        editSession, region, clipboard, region.getMinimumPoint()
+		    );
+		    // configure here
+		    try {
+				Operations.complete(forwardExtentCopy);
+			} catch (WorldEditException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		File file = new File("plugins/WorldEdit/schematics/Tiles/" + schemName + ".schem");
+		if(!file.exists()) {
+			file.getParentFile().mkdirs();
+		}
+		
 		try (ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(file))) {
 		    writer.write(clipboard);
 		}
