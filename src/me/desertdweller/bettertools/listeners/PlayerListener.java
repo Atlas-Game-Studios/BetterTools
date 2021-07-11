@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -134,6 +136,13 @@ public class PlayerListener implements Listener{
 			e.setCancelled(true);
 			e.getClickedInventory().setItem(e.getSlot(), new ItemStack(Material.AIR));
 			e.setCursor(new ItemStack(Material.AIR));
+		}
+	}
+	
+	@EventHandler
+	public static void onFarmlandTrampleEvent(PlayerInteractEvent e) {
+		if(e.getAction().equals(Action.PHYSICAL) && e.hasBlock() && e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
+			e.setCancelled(true);
 		}
 	}
 	
