@@ -138,10 +138,10 @@ public class PlayerListener implements Listener{
 			e.setCursor(new ItemStack(Material.AIR));
 		}
 	}
-	
+
 	@EventHandler
 	public static void onFarmlandTrampleEvent(PlayerInteractEvent e) {
-		if(e.getAction().equals(Action.PHYSICAL) && e.hasBlock() && e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
+		if(e.getAction().equals(Action.PHYSICAL) && e.hasBlock() && e.getPlayer().getGameMode().equals(GameMode.CREATIVE) && e.getClickedBlock().getType().equals(Material.FARMLAND)) {
 			e.setCancelled(true);
 		}
 	}
