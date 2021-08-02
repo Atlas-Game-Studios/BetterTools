@@ -217,7 +217,7 @@ public class BlockMath {
     		targetChest.setType(propertyChest.getType());
     		targetChest.setWaterlogged(propertyChest.isWaterlogged());
     		return targetChest;
-    	case CraftCobbleWall:
+    	case CraftWall:
     		Wall targetWall = (Wall) target;
     		Wall propertyWall = (Wall) properties;
     		targetWall.setUp(propertyWall.isUp());
@@ -568,6 +568,11 @@ public class BlockMath {
     		targetTurtleEgg.setEggs(propertyTurtleEgg.getEggs());
     		targetTurtleEgg.setHatch(propertyTurtleEgg.getHatch());
     		return targetTurtleEgg;
+//    	case CraftWall:
+//    		Wall targetWall = (Wall) target;
+//    		Wall propertyWall = (Wall) properties;
+//    		
+//    		return targetWall;
     	case CraftWallSign:
     		WallSign targetWallSign = (WallSign) target;
     		WallSign propertyWallSign = (WallSign) properties;
@@ -601,8 +606,7 @@ public class BlockMath {
         			//Is this, or is this not, a simple block
         			if(BetterTools.getSimpleBlocks() != null && BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase()) != null) {
         				SimpleBlock sb = BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase());
-        				
-                		materialList.put(Bukkit.createBlockData("note_block[instrument=" + sb.getInstrument().toString().toLowerCase().replace("piano", "harp") + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, 1));
+                		materialList.put(Bukkit.createBlockData("note_block[instrument=" + correctInstrumentNames(sb.getInstrument().toString()) + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, 1));
         			}else {
                 		materialList.put(Bukkit.createBlockData(materialString), new BTBMeta(materialString.contains("["), 1));
         			}
@@ -610,8 +614,7 @@ public class BlockMath {
         		}else if(materialString.split("%").length == 2){
         			if(BetterTools.getSimpleBlocks() != null && BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase()) != null) {
         				SimpleBlock sb = BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase());
-        				String sbInstrumentStr = sb.getInstrument().toString().toLowerCase().replace("piano", "harp").replace("base_drum", "basedrum").replace("bass_guitar", "bass").replace("snare_drum", "snare").replace("sticks", "hat");
-        				materialList.put(Bukkit.createBlockData("note_block[instrument=" + sbInstrumentStr + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, Integer.parseInt(materialString.split("%")[0])));
+        				materialList.put(Bukkit.createBlockData("note_block[instrument=" + correctInstrumentNames(sb.getInstrument().toString()) + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, Integer.parseInt(materialString.split("%")[0])));
         			}else {
         				materialList.put(Bukkit.createBlockData(materialString.split("%")[1]), new BTBMeta(materialString.contains("["), Integer.parseInt(materialString.split("%")[0])));
         			}
@@ -636,16 +639,18 @@ public class BlockMath {
     	}
     	return strings;
     }
+    
+    
 
     public static String checkStringList(String list) {
-    	//2%oak_stairs,spruce_stairs[facing=north|type=top],small_stone_bricks
+    	//2%oak_stairs,spruce_stairs[facing=north|type=top],small_stone_bricks,3%vertical_oak_planks
     	String[] materialNames = list.split(",");
-    	//2%oak_stairs spruce_stairs[facing=north|type=top] small_stone_bricks
+    	//2%oak_stairs spruce_stairs[facing=north|type=top] small_stone_bricks 3%vertical_oak_planks
     	for(String materialString : materialNames) {
     		materialString = materialString.replace('|', ',');
-    		//2%oak_stairs  spruce_stairs[facing=north type=top]  small_stone_bricks
+    		//2%oak_stairs  spruce_stairs[facing=north type=top]  small_stone_bricks  3%vertical_oak_planks
     		if(materialString.split("%").length == 1) {
-        		//2 oak_stairs  spruce_stairs[facing=north type=top]  small_stone_bricks
+        		//2 oak_stairs  spruce_stairs[facing=north type=top]  small_stone_bricks  3 vertical_oak_planks
     			try {
             		Bukkit.createBlockData(materialString);
         		}catch(IllegalArgumentException e) {
@@ -658,16 +663,20 @@ public class BlockMath {
             		Bukkit.createBlockData(materialString.split("%")[1]);
         		}catch(IllegalArgumentException e) {
         			//Is it not a simpleblock?
-        			if(BetterTools.getSimpleBlocks() != null || BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase()) == null)
+        			if(BetterTools.getSimpleBlocks() == null || BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase()) == null)
             			return materialString;
         		}
     		}
     	}
     	return null;
     }
+    
+    private static String correctInstrumentNames(String str) {
+    	return str.toLowerCase().replace("piano", "harp").replace("bass_drum", "basedrum").replace("bass_guitar", "bass").replace("snare_drum", "snare").replace("sticks", "hat");
+    }
 }
 
 enum CLAZZ {
-	CraftAgeable, CraftAnaloguePowerable, CraftAttachable, CraftBamboo, CraftBed, CraftBeehive, CraftBell, CraftBisected, CraftBlockData, CraftBrewingStand, CraftBubbleColumn, CraftCake, CraftCampfire, CraftChain, CraftChest, CraftCobbleWall, CraftCocoa, CraftCommandBlock, CraftComparator, CraftCoralWallFan, CraftDaylightDetector, CraftDirectional, CraftDispenser, CraftDoor, CraftEnderChest, CraftEndPortalFrame, CraftFaceAttachable, CraftFarmland, CraftFence, CraftFire, CraftFurnaceFurace, CraftGate, CraftGlassPane, CraftGrindstone, CraftHopper, CraftJigsaw, CraftJukebox, CraftLadder, CraftLantern, CraftLeaves, CraftLectern, CraftLevelled, CraftLightable, CraftMultipleFacing, CraftNoteBlock, CraftObserver, CraftOpenable, CraftOrientable, CraftPiston, CraftPistonHead, CraftPowerable, CraftRail, CraftRedstoneRail, CraftRedstoneWallTorch, CraftRedstoneWire, CraftRepeater, CraftRespawnAnchor, CraftRotatable, CraftSapling, CraftScaffolding, CraftSeaPickle, CraftSign, CraftStepAbstract, CraftSnow, CraftSnowable, CraftStairs, CraftStructureBlock, CraftSwitch, CraftTechnicalPiston, CraftTNT, CraftTrapdoor, CraftTripwire, CraftTripwireHook, CraftTurtleEgg, CraftWallSign, CraftWaterlogged, CraftCrops
+	CraftAgeable, CraftAnaloguePowerable, CraftAttachable, CraftBamboo, CraftBed, CraftBeehive, CraftBell, CraftBisected, CraftBlockData, CraftBrewingStand, CraftBubbleColumn, CraftCake, CraftCampfire, CraftChain, CraftChest, CraftCobbleWall, CraftCocoa, CraftCommandBlock, CraftComparator, CraftCoralWallFan, CraftDaylightDetector, CraftDirectional, CraftDispenser, CraftDoor, CraftEnderChest, CraftEndPortalFrame, CraftFaceAttachable, CraftFarmland, CraftFence, CraftFire, CraftFurnaceFurace, CraftGate, CraftGlassPane, CraftGrindstone, CraftHopper, CraftJigsaw, CraftJukebox, CraftLadder, CraftLantern, CraftLeaves, CraftLectern, CraftLevelled, CraftLightable, CraftMultipleFacing, CraftNoteBlock, CraftObserver, CraftOpenable, CraftOrientable, CraftPiston, CraftPistonHead, CraftPowerable, CraftRail, CraftRedstoneRail, CraftRedstoneWallTorch, CraftRedstoneWire, CraftRepeater, CraftRespawnAnchor, CraftRotatable, CraftSapling, CraftScaffolding, CraftSeaPickle, CraftSign, CraftStepAbstract, CraftSnow, CraftSnowable, CraftStairs, CraftStructureBlock, CraftSwitch, CraftTechnicalPiston, CraftTNT, CraftTrapdoor, CraftTripwire, CraftTripwireHook, CraftTurtleEgg, CraftWall, CraftWallSign, CraftWaterlogged, CraftCrops
 
 }
