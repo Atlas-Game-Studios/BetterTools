@@ -482,6 +482,8 @@ public class Commands implements CommandExecutor{
 		return true;
 	}
 	
+	//TODO: Make touching able to be relative
+	
 	private void sendHelp(CommandSender sender) {
 	sender.sendMessage(ChatColor.GOLD + "/bt tool");
 	sender.sendMessage(ChatColor.GRAY + "This gives you the tool which how you will be able to use BetterTools. Almost all BT commands will be to adjust this tool. Everything you do to this tool will be saved, can be duplicated by copying the item, and so on.");

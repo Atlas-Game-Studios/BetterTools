@@ -7,6 +7,6 @@
 	<classpathentry kind="lib" path="D:/Programming/Atlas APIs/1.16 APIs/CoreProtect-19.4.jar"/>
 	<classpathentry kind="lib" path="D:/Programming/Atlas APIs/1.16 APIs/SimpleBlocks-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="D:/Programming/Atlas APIs/1.16 APIs/worldedit-bukkit-7.2.5-dist.jar"/>
-	<classpathentry kind="lib" path="D:/Programming/Atlas APIs/1.16 APIs/spigot-1.16.4.jar"/>
+	<classpathentry kind="lib" path="D:/Programming/Atlas APIs/1.17 APIs/spigot-1.17.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

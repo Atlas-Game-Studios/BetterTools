@@ -85,6 +85,10 @@ public class PlayerListener implements Listener{
 		}
 	}
 	
+	//TODO: Make multi block blocks place correctly
+	//TODO: Make slab smooth brush
+	//TODO: Look into proper smooth brushes
+	
 	@EventHandler
 	public static void onPlayerItemHoldEvent(PlayerItemHeldEvent e){
 		ItemStack item = e.getPlayer().getInventory().getItem(e.getNewSlot());
