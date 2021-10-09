@@ -48,6 +48,9 @@ commands:
   bt createtileschem:
     description: Creates the schematic for a Trials room.
     usage: /bt createtileschem <name>
+  bt snowtool:
+    description: Creates a snow tool.
+    usage: /bt snowtool [radius]
 permissions:
    bt.use:
       description: Allows the player to use the tools.
