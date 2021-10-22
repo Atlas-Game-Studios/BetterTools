@@ -725,7 +725,7 @@ public class BlockMath {
 			targetAgeable.setAge(propertyAgeable.getAge());
 			return targetAgeable;
 		default:
-			return properties;
+			return target;
 		}
 	}
 
