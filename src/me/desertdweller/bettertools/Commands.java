@@ -228,7 +228,7 @@ public class Commands implements CommandExecutor{
 						nbti.setString("Mask", "empty");
 						p.sendMessage("Mask cleared");
 					}else {
-						String invalidName = BlockMath.checkStringList(args[1]);
+						String invalidName = BlockMath.checkStringList(args[1], "mask");
 						if(invalidName == null) {
 							nbti.setString("Mask", args[1]);
 						}else {
@@ -285,7 +285,7 @@ public class Commands implements CommandExecutor{
 			NBTItem nbti = new NBTItem(p.getInventory().getItemInMainHand());
 			if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools")) {
 				if(args.length > 1) {
-					String invalidName = BlockMath.checkStringList(args[1]);
+					String invalidName = BlockMath.checkStringList(args[1], "blocks");
 					if(invalidName == null) {
 						nbti.setString("Blocks", args[1]);
 					}else {
@@ -371,7 +371,7 @@ public class Commands implements CommandExecutor{
 			NBTItem nbti = new NBTItem(p.getInventory().getItemInMainHand());
 			if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools")) {
 				if(args.length > 1) {
-					String invalidName = BlockMath.checkStringList(args[1]);
+					String invalidName = BlockMath.checkStringList(args[1], "through");
 					if(invalidName == null) {
 						nbti.setString("Through", args[1]);
 						ItemStack item = nbti.getItem();
@@ -403,7 +403,7 @@ public class Commands implements CommandExecutor{
 			NBTItem nbti = new NBTItem(p.getInventory().getItemInMainHand());
 			if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools")) {
 				if(args.length > 1) {
-					String invalidName = BlockMath.checkStringList(args[1]);
+					String invalidName = BlockMath.checkStringList(args[1], "touching");
 					if(invalidName == null) {
 						nbti.setString("Touching", args[1]);
 						ItemStack item = nbti.getItem();
@@ -589,8 +589,6 @@ public class Commands implements CommandExecutor{
 		sendHelp(sender);
 		return true;
 	}
-	
-	//TODO: Make touching able to be relative
 	
 	private void sendHelp(CommandSender sender) {
 	sender.sendMessage(ChatColor.GOLD + "/bt tool");

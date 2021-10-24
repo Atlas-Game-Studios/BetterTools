@@ -22,11 +22,10 @@ public class CommandCompleter implements TabCompleter{
 	private List<String> helpArguments = new ArrayList<String>();
 	private List<String> boolArguments = new ArrayList<String>();
 	
-	//TODO: Add handling for clearing lists.
-	
 	public CommandCompleter() {
 		firstLevelArguments.add("help");
 		firstLevelArguments.add("tool");
+		firstLevelArguments.add("snowtool");
 		firstLevelArguments.add("settool");
 		firstLevelArguments.add("radius");
 		firstLevelArguments.add("mask");

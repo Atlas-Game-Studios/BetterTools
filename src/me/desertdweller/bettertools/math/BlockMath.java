@@ -90,35 +90,35 @@ public class BlockMath {
     }
     
     public static List<Block> getBlocksTouching(List<Block> inputBlocks, Map<BlockData, BTBMeta> touchLimits){
-        List<Material> nonCustomMats = getNonCustomMaterials(touchLimits);
+		Map<Material, BTBMeta> nonCustomMats = getNonCustomMaterialsWithMeta(touchLimits);
     	List<Block> outputBlocks = new ArrayList<Block>();
-    	for(Block block : inputBlocks) {
-    		if(nonCustomMats.contains(block.getRelative(1, 0, 0).getType())) {
-    			outputBlocks.add(block);
-    		}else if(touchLimits.containsKey(block.getRelative(1, 0, 0).getBlockData())){
-    			outputBlocks.add(block);
-    		}else if(nonCustomMats.contains(block.getRelative(-1, 0, 0).getType())) {
-    			outputBlocks.add(block);
-    		}else if(touchLimits.containsKey(block.getRelative(-1, 0, 0).getBlockData())){
-    			outputBlocks.add(block);
-    		}else if(nonCustomMats.contains(block.getRelative(0, 1, 0).getType())) {
-    			outputBlocks.add(block);
-    		}else if(touchLimits.containsKey(block.getRelative(0, 1, 0).getBlockData())){
-    			outputBlocks.add(block);
-    		}else if(nonCustomMats.contains(block.getRelative(0, -1, 0).getType())) {
-    			outputBlocks.add(block);
-    		}else if(touchLimits.containsKey(block.getRelative(0, -1, 0).getBlockData())){
-    			outputBlocks.add(block);
-    		}else if(nonCustomMats.contains(block.getRelative(0, 0, 1).getType())) {
-    			outputBlocks.add(block);
-    		}else if(touchLimits.containsKey(block.getRelative(0, 0, 1).getBlockData())){
-    			outputBlocks.add(block);
-    		}else if(nonCustomMats.contains(block.getRelative(0, 0, -1).getType())) {
-    			outputBlocks.add(block);
-    		}else if(touchLimits.containsKey(block.getRelative(0, 0, -1).getBlockData())){
-    			outputBlocks.add(block);
-    		}
-    	}
+		for (Block block : inputBlocks) {
+			if (nonCustomMats.containsKey(block.getRelative(1, 0, 0).getType()) && nonCustomMats.get(block.getRelative(1, 0, 0).getType()).containsParam("west", true)) {
+				outputBlocks.add(block);
+			} else if (touchLimits.containsKey(block.getRelative(1, 0, 0).getBlockData()) && touchLimits.get(block.getRelative(1, 0, 0).getBlockData()).containsParam("west", true)) {
+				outputBlocks.add(block);
+			} else if (nonCustomMats.containsKey(block.getRelative(-1, 0, 0).getType()) && nonCustomMats.get(block.getRelative(-1, 0, 0).getType()).containsParam("east", true)) {
+				outputBlocks.add(block);
+			} else if (touchLimits.containsKey(block.getRelative(-1, 0, 0).getBlockData()) && touchLimits.get(block.getRelative(-1, 0, 0).getBlockData()).containsParam("east", true)) {
+				outputBlocks.add(block);
+			} else if (nonCustomMats.containsKey(block.getRelative(0, 1, 0).getType()) && nonCustomMats.get(block.getRelative(0, 1, 0).getType()).containsParam("down", true)) {
+				outputBlocks.add(block);
+			} else if (touchLimits.containsKey(block.getRelative(0, 1, 0).getBlockData()) && touchLimits.get(block.getRelative(0, 1, 0).getBlockData()).containsParam("down", true)) {
+				outputBlocks.add(block);
+			} else if (nonCustomMats.containsKey(block.getRelative(0, -1, 0).getType()) && nonCustomMats.get(block.getRelative(0, -1, 0).getType()).containsParam("up", true)) {
+				outputBlocks.add(block);
+			} else if (touchLimits.containsKey(block.getRelative(0, -1, 0).getBlockData()) && touchLimits.get(block.getRelative(0, -1, 0).getBlockData()).containsParam("up", true)) {
+				outputBlocks.add(block);
+			} else if (nonCustomMats.containsKey(block.getRelative(0, 0, 1).getType()) && nonCustomMats.get(block.getRelative(0, 0, 1).getType()).containsParam("south", true)) {
+				outputBlocks.add(block);
+			} else if (touchLimits.containsKey(block.getRelative(0, 0, 1).getBlockData()) && touchLimits.get(block.getRelative(0, 0, 1).getBlockData()).containsParam("south", true)) {
+				outputBlocks.add(block);
+			} else if (nonCustomMats.containsKey(block.getRelative(0, 0, -1).getType()) && nonCustomMats.get(block.getRelative(0, 0, -1).getType()).containsParam("north", true)) {
+				outputBlocks.add(block);
+			} else if (touchLimits.containsKey(block.getRelative(0, 0, -1).getBlockData()) && touchLimits.get(block.getRelative(0, 0, -1).getBlockData()).containsParam("north", true)) {
+				outputBlocks.add(block);
+			}
+		}
     	return outputBlocks;
     }
     
@@ -130,6 +130,15 @@ public class BlockMath {
     	}
     	return materials;
     }
+	
+	private static Map<Material, BTBMeta> getNonCustomMaterialsWithMeta(Map<BlockData, BTBMeta> map) {
+		Map<Material, BTBMeta> materials = new HashMap<Material, BTBMeta>();
+		for (BlockData block : map.keySet()) {
+			if (!map.get(block).specified)
+				materials.put(block.getMaterial(), map.get(block));
+		}
+		return materials;
+	}
     
     public static void givePlayerNoiseMap(Player p) {
     	if(!p.getInventory().getItemInOffHand().getType().equals(Material.AIR))
@@ -150,7 +159,6 @@ public class BlockMath {
     	p.getInventory().setItemInOffHand(nbti.getItem());
     }
     
-    //TODO: Check bed cases
 
 	public static BlockData applyProperties(BlockData target, BlockData properties) {
 		CLAZZ z;
@@ -736,25 +744,31 @@ public class BlockMath {
     	String[] materialNames = string.split(",");
     	HashMap<BlockData, BTBMeta> materialList = new HashMap<BlockData, BTBMeta>();
     	for(String materialString : materialNames) {
-    			materialString = materialString.replace('|', ',');
-    			//If no specified additional amounts.
-        		if(materialString.split("%").length == 1) {
-        			//Is this, or is this not, a simple block
-        			if(BetterTools.getSimpleBlocks() != null && BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase()) != null) {
-        				SimpleBlock sb = BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase());
-                		materialList.put(Bukkit.createBlockData("note_block[instrument=" + correctInstrumentNames(sb.getInstrument().toString()) + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, 1));
-        			}else {
-                		materialList.put(Bukkit.createBlockData(materialString), new BTBMeta(materialString.contains("["), 1));
-        			}
-        			//If there is a specified amount.
-        		}else if(materialString.split("%").length == 2){
-        			if(BetterTools.getSimpleBlocks() != null && BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase()) != null) {
-        				SimpleBlock sb = BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase());
-        				materialList.put(Bukkit.createBlockData("note_block[instrument=" + correctInstrumentNames(sb.getInstrument().toString()) + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, Integer.parseInt(materialString.split("%")[0])));
-        			}else {
-        				materialList.put(Bukkit.createBlockData(materialString.split("%")[1]), new BTBMeta(materialString.contains("["), Integer.parseInt(materialString.split("%")[0])));
-        			}
+			String customParams = null;
+			if(materialString.contains("<")) {
+				customParams = materialString.split("<")[1].replace("|", ",");
+				materialString = materialString.split("<")[0];
+				customParams = customParams.replace(">", "");
+			}
+    		materialString = materialString.replace('|', ',');
+    		//If no specified additional amounts.
+        	if(materialString.split("%").length == 1) {
+        		//Is this, or is this not, a simple block
+        		if(BetterTools.getSimpleBlocks() != null && BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase()) != null) {
+        			SimpleBlock sb = BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase());
+               		materialList.put(Bukkit.createBlockData("note_block[instrument=" + correctInstrumentNames(sb.getInstrument().toString()) + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, 1, customParams));
+        		}else {
+               		materialList.put(Bukkit.createBlockData(materialString), new BTBMeta(materialString.contains("["), 1, customParams));
         		}
+        		//If there is a specified amount.
+        	}else if(materialString.split("%").length == 2){
+        		if(BetterTools.getSimpleBlocks() != null && BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase()) != null) {
+        			SimpleBlock sb = BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase());
+        			materialList.put(Bukkit.createBlockData("note_block[instrument=" + correctInstrumentNames(sb.getInstrument().toString()) + ",note=" + sb.getNote().getId() + "]"), new BTBMeta(false, Integer.parseInt(materialString.split("%")[0]), customParams));
+        		}else {
+        			materialList.put(Bukkit.createBlockData(materialString.split("%")[1]), new BTBMeta(materialString.contains("["), Integer.parseInt(materialString.split("%")[0]), customParams));
+        		}
+        	}
     	}
     	return materialList;
     }
@@ -799,11 +813,19 @@ public class BlockMath {
     
     
 
-    public static String checkStringList(String list) {
+    public static String checkStringList(String list, String methodName) {
     	//2%oak_stairs,spruce_stairs[facing=north|type=top],small_stone_bricks,3%vertical_oak_planks
     	String[] materialNames = list.split(",");
     	//2%oak_stairs spruce_stairs[facing=north|type=top] small_stone_bricks 3%vertical_oak_planks
     	for(String materialString : materialNames) {
+			String originalString = materialString;
+			//Checks to make sure the custom parameters are valid, and removes them from the check.
+			if(materialString.contains("<")) {
+				if(checkCustomParams(materialString.split("<")[1], methodName)) {
+					return originalString;
+				}
+				materialString = materialString.split("<")[0];
+			}
     		materialString = materialString.replace('|', ',');
     		//2%oak_stairs  spruce_stairs[facing=north type=top]  small_stone_bricks  3%vertical_oak_planks
     		if(materialString.split("%").length == 1) {
@@ -813,7 +835,7 @@ public class BlockMath {
         		}catch(IllegalArgumentException e) {
         			//Is it not a simpleblock?
         			if(BetterTools.getSimpleBlocks() == null || BetterTools.getSimpleBlocks().getSimpleBlock(materialString.toLowerCase()) == null)
-            			return materialString;
+            			return originalString;
         		}
     		}else if(materialString.split("%").length == 2){
     			try {
@@ -821,12 +843,26 @@ public class BlockMath {
         		}catch(IllegalArgumentException e) {
         			//Is it not a simpleblock?
         			if(BetterTools.getSimpleBlocks() == null || BetterTools.getSimpleBlocks().getSimpleBlock(materialString.split("%")[1].toLowerCase()) == null)
-            			return materialString;
+            			return originalString;
         		}
     		}
     	}
     	return null;
     }
+    
+	private static boolean checkCustomParams(String params, String methodName) {
+		switch(methodName){
+		case "touching":
+			params = params.toLowerCase();
+			params = params.replace(">", "");
+			for(String param : params.split("|")) {
+				if(!param.equals("up") && !param.equals("down") && !param.equals("north") && !param.equals("south") && !param.equals("west") && !param.equals("east")) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
     
     private static String correctInstrumentNames(String str) {
     	return str.toLowerCase().replace("piano", "harp").replace("bass_drum", "basedrum").replace("bass_guitar", "bass").replace("snare_drum", "snare").replace("sticks", "hat");
