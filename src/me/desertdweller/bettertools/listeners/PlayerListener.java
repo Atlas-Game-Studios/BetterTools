@@ -55,8 +55,6 @@ public class PlayerListener implements Listener{
 		}
 	}
 	
-	//TODO: Add in simulate snow option
-	//
 	private static void useSnowBrush(PlayerInteractEvent e, NBTItem nbti) {
 		if(nbti.getBoolean("Smooth") == false) {
 			
@@ -86,7 +84,6 @@ public class PlayerListener implements Listener{
 		Block centerBlock = e.getPlayer().getTargetBlock(dataToMaterialSet(BlockMath.stringToHashMap(nbti.getString("Through"), false).keySet()), 200);
 		List<Block> blocks;
 		Noise noise = new Noise(nbti.getString("Noise"));
-		
 		if(nbti.hasKey("Mask") && !nbti.getString("Mask").equals("empty")) {
 			blocks = BlockMath.getNearbyBlocksMasked(centerBlock.getLocation(), nbti.getInteger("Radius"),BlockMath.stringToHashMap(nbti.getString("Mask"), false), noise, false);
 		}else {
@@ -135,7 +132,7 @@ public class PlayerListener implements Listener{
 	
 	private static boolean setBlockData(Block targetBlock, BlockData targetData, boolean updates, boolean customProps){
 		//If the blocks are of the same type, (ie both walls), then transfer data from the previous block to the other.
-		if(!customProps && targetBlock.getBlockData().getClass().equals(targetData.getClass())) {
+		if(!customProps && (targetBlock.getBlockData().getClass().equals(targetData.getClass())) || checkSimilarClasses(targetBlock, targetData)) {
 			targetData = BlockMath.applyProperties(targetData, targetBlock.getBlockData());
 		}
 		//This would be null if there was an error in trying to transfer data from one block to another.
@@ -145,33 +142,46 @@ public class PlayerListener implements Listener{
 		return true;
 	}
 	
-	//TODO: Make multi block blocks place correctly
-	//TODO: Make slab smooth brush
-	//TODO: Look into proper smooth brushes
+	private static boolean checkSimilarClasses(Block targetBlock, BlockData targetData) {
+		String targetBlockClassName = targetBlock.getBlockData().getClass().getSimpleName();
+		String targetPropertiesClassName = targetData.getClass().getSimpleName();
+		if(targetBlockClassName.contains("Stair") && targetPropertiesClassName.contains("Stair"))
+			return true;
+		if(targetBlockClassName.contains("Slab") && targetPropertiesClassName.contains("Slab"))
+			return true;
+		if(targetBlockClassName.contains("Button") && targetPropertiesClassName.contains("Button"))
+			return true;
+		if(targetBlockClassName.contains("Pane") && targetPropertiesClassName.contains("Pane"))
+			return true;
+		if((targetBlockClassName.equals("CraftCrops") || targetBlockClassName.equals("CraftBeetroots") || targetBlockClassName.equals("CraftPotatoes") || targetBlockClassName.equals("CraftCarrots")) 
+				&& (targetPropertiesClassName.equals("CraftCrops") || targetPropertiesClassName.equals("CraftBeetroots") || targetPropertiesClassName.equals("CraftPotatoes") || targetPropertiesClassName.equals("CraftCarrots")))
+			return true;
+		return false;
+	}
 	
 	@EventHandler
 	public static void onPlayerItemHoldEvent(PlayerItemHeldEvent e){
 		ItemStack item = e.getPlayer().getInventory().getItem(e.getNewSlot());
-		if(item == null || item.getType().equals(Material.AIR)) {
-			if(e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR))
+		if(item == null || item.getType() == Material.AIR) {
+			if(e.getPlayer().getInventory().getItemInOffHand().getType() == Material.AIR)
 				return;
 			NBTItem offhand = new NBTItem(e.getPlayer().getInventory().getItemInOffHand());
-			if(offhand.getItem().getType().equals(Material.FILLED_MAP) && offhand.hasKey("Plugin") && offhand.getString("Plugin").equals("BetterTools")) {
+			if(offhand.getItem().getType() == Material.FILLED_MAP && offhand.hasKey("Plugin") && offhand.getString("Plugin").equals("BetterTools")) {
 				e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
 			}
 			return;
 		}
 		NBTItem nbti = new NBTItem(item);
 		if(!nbti.hasKey("Plugin") || !nbti.getString("Plugin").equals("BetterTools") || new Noise(nbti.getString("Noise")).method.equals("none")) {
-			if(e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR))
+			if(e.getPlayer().getInventory().getItemInOffHand().getType() == Material.AIR)
 				return;
 			NBTItem offhand = new NBTItem(e.getPlayer().getInventory().getItemInOffHand());
-			if(offhand.getItem().getType().equals(Material.FILLED_MAP) && offhand.hasKey("Plugin") && offhand.getString("Plugin").equals("BetterTools")) {
+			if(offhand.getItem().getType() == Material.FILLED_MAP && offhand.hasKey("Plugin") && offhand.getString("Plugin").equals("BetterTools")) {
 				e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
 			}
 			return;
 		}
-		if(item.getType().equals(Material.FILLED_MAP)) {
+		if(item.getType() == Material.FILLED_MAP) {
 			e.getPlayer().getInventory().setItem(e.getNewSlot(), null);
 		}else if(!new Noise(nbti.getString("Noise")).method.equals("none")) {
 			BlockMath.givePlayerNoiseMap(e.getPlayer());
@@ -180,10 +190,10 @@ public class PlayerListener implements Listener{
 
 	@EventHandler
 	public static void onPlayerDropItemEvent(PlayerDropItemEvent e) {
-		if(e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR))
+		if(e.getPlayer().getInventory().getItemInOffHand().getType() == Material.AIR)
 			return;
 		NBTItem offhand = new NBTItem(e.getPlayer().getInventory().getItemInOffHand());
-		if(offhand.getItem().getType().equals(Material.FILLED_MAP) && offhand.hasKey("Plugin") && offhand.getString("Plugin").equals("BetterTools")) {
+		if(offhand.getItem().getType() == Material.FILLED_MAP && offhand.hasKey("Plugin") && offhand.getString("Plugin").equals("BetterTools")) {
 			if(e.getPlayer().getInventory().getItemInMainHand().equals(null))
 				e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
 		}
@@ -192,29 +202,30 @@ public class PlayerListener implements Listener{
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public static void onInventoryClickEvent(InventoryClickEvent e) {
-		if(e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.AIR)
+		if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)
 			return;
 		NBTItem nbti = new NBTItem(e.getCurrentItem());
-		if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools") && e.getCurrentItem().getType().equals(Material.FILLED_MAP)) {
+		if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools") && e.getCurrentItem().getType() == Material.FILLED_MAP) {
 			e.setCancelled(true);
 			e.getClickedInventory().setItem(e.getSlot(), new ItemStack(Material.AIR));
 			e.setCursor(new ItemStack(Material.AIR));
 		}
 	}
+	
+	@EventHandler
+	public static void onPlayerSwapHandsEvent(PlayerSwapHandItemsEvent e) {
+		if(e.getOffHandItem().getType() == Material.AIR)
+			return;
+		NBTItem nbti = new NBTItem(e.getOffHandItem());
+		if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools") && e.getOffHandItem().getType() == Material.FILLED_MAP) {
+			e.setOffHandItem(new ItemStack(Material.AIR));
+		}
+	}
 
 	@EventHandler
 	public static void onFarmlandTrampleEvent(PlayerInteractEvent e) {
-		if(e.getAction().equals(Action.PHYSICAL) && e.hasBlock() && e.getPlayer().getGameMode().equals(GameMode.CREATIVE) && e.getClickedBlock().getType().equals(Material.FARMLAND)) {
+		if(e.getAction().equals(Action.PHYSICAL) && e.hasBlock() && e.getPlayer().getGameMode().equals(GameMode.CREATIVE) && e.getClickedBlock().getType() == Material.FARMLAND) {
 			e.setCancelled(true);
-		}
-	}
-	
-	public static void onPlayerSwapHandsEvent(PlayerSwapHandItemsEvent e) {
-		if(e.getOffHandItem().getType().equals(Material.AIR))
-			return;
-		NBTItem nbti = new NBTItem(e.getOffHandItem());
-		if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools") && e.getOffHandItem().getType().equals(Material.FILLED_MAP)) {
-			e.setOffHandItem(new ItemStack(Material.AIR));
 		}
 	}
 
