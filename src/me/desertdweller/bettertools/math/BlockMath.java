@@ -859,6 +859,11 @@ public class BlockMath {
     	return materialList;
     }
     
+	//Replaces any properties in the list, such as '#blocks', with the list from blocks.
+	public static String replaceSpecialStrings(String targetList, String blocksList) {
+		return targetList.toLowerCase().replace("#blocks", blocksList);
+	}
+    
     private static String setDefaultBlockData(String inputString) {
     	String outputString = "";
     	
@@ -909,6 +914,8 @@ public class BlockMath {
     	for(String materialString : materialNames) {
 			String originalString = materialString;
 			//Checks to make sure the custom parameters are valid, and removes them from the check.
+			if(materialString.equalsIgnoreCase("#blocks"))
+				continue;
 			if(materialString.contains("<")) {
 				if(checkCustomParams(materialString.split("<")[1], methodName)) {
 					return originalString;

@@ -231,7 +231,7 @@ public class Commands implements CommandExecutor{
 			if(nbti.hasKey("Plugin") && nbti.getString("Plugin").equals("BetterTools")) {
 				if(args.length > 1) {
 					if(args[1].equalsIgnoreCase("#empty") || args[1].equalsIgnoreCase("none") || args[1].equalsIgnoreCase("#off") || args[1].equalsIgnoreCase("#clear")) {
-						nbti.setString("Mask", "#empty");
+						nbti.setString("Mask", "empty");
 						p.sendMessage("Mask cleared");
 					}else {
 						String invalidName = BlockMath.checkStringList(args[1], "mask");
